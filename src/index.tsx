@@ -26,31 +26,8 @@ app.get("/new", async (c) => {
 
 	let videos: YoutubeVideo[] = [];
 	for (const { name: channelId } of keys) {
-		const { value: j, metadata } =
-			await c.env.random.getWithMetadata<Metadata>(channelId);
-
-		console.info("metadata", metadata);
-
-		let data: YoutubeApiResponse;
-
-		const now = Date.now();
-		const isCacheExpired = !metadata || now > metadata.expiresAt;
-		if (!j || isCacheExpired) {
-			console.info("kv miss");
-			const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;
-			const response = await fetch(url);
-
-			data = await response.json();
-
-			const expiresAt = now + CACHE_DURATION;
-			await c.env.random.put(channelId, JSON.stringify(data), {
-				metadata: { channelId, expiresAt },
-			});
-		} else {
-			console.info("kv hit");
-			data = JSON.parse(j);
-		}
-		videos = videos.concat(data.items);
+		const channelVideos = await fetchYoutubeVideos(channelId, c.env)
+		videos = videos.concat(channelVideos);
 	}
 
 	if (videos.length === 0) {
@@ -94,6 +71,35 @@ app.get("/new", async (c) => {
 });
 
 export default app;
+
+export const fetchYoutubeVideos = async (channelId: string, env: Env): Promise<YoutubeVideo[]> => {
+	const API_KEY = env.API_KEY;
+	const CACHE_DURATION = 24 * 3600 * 1000; // 1日
+
+	const { value, metadata } = await env.random.getWithMetadata<Metadata>(channelId);
+
+	console.info("metadata", metadata);
+
+	const now = Date.now();
+	const isCacheExpired = !metadata || now > metadata.expiresAt;
+	if (value && !isCacheExpired) {
+		console.info("kv hit");
+		const data: YoutubeApiResponse = JSON.parse(value);
+		return data.items;
+	}
+
+	console.info("kv miss or cache expired");
+	const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;
+	const response = await fetch(url);
+	const data: YoutubeApiResponse = await response.json();
+
+	const expiresAt = now + CACHE_DURATION;
+	await env.random.put(channelId, JSON.stringify(data), {
+		metadata: { channelId, expiresAt },
+	});
+
+	return data.items;
+};
 
 interface YoutubeVideo {
 	id: {

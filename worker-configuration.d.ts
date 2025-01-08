@@ -2,4 +2,5 @@
 
 interface Env {
 	random: KVNamespace;
+	API_KEY: string;
 }

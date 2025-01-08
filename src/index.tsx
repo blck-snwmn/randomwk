@@ -85,12 +85,12 @@ export const fetchYoutubeVideos = async (
 	const now = Date.now();
 	const isCacheExpired = !metadata || now > metadata.expiresAt;
 	if (value && !isCacheExpired) {
-		console.info("kv hit");
+		console.info(`kv hit: ${channelId}`);
 		const data: YoutubeApiResponse = JSON.parse(value);
 		return data.items;
 	}
 
-	console.info("kv miss or cache expired");
+	console.info(`kv miss or cache expired: ${channelId}`);
 	const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;
 	const response = await fetch(url);
 	const data: YoutubeApiResponse = await response.json();

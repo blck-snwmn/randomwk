@@ -16,9 +16,9 @@ app.get("/", (c) => {
 	return c.html(<Top />);
 });
 
-const CACHE_DURATION = 24 * 3600 * 1000; // 1日
 
 app.get("/new", async (c) => {
+	const CACHE_DURATION = 24 * 3600 * 1000; // 1日
 	const API_KEY = c.env.API_KEY;
 
 	const keys = (await c.env.random.list()).keys;

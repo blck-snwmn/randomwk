@@ -53,13 +53,13 @@ app.get("/new", async (c) => {
 					<meta charset="UTF-8" />
 					<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 					<meta property="og:title" content="${videoTitle}" />
-					<meta property="og:description" content="${videoDescription}" />
-					<meta property="og:image" content="${videoThumbnail}" />
-					<meta property="og:url" content="${videoUrl}" />
-					<title>${videoTitle}</title>
+					<meta property="og:description" content={videoDescription} />
+					<meta property="og:image" content={videoThumbnail} />
+					<meta property="og:url" content={videoUrl} />
+					<title>{videoTitle}</title>
 				</head>
 				<body>
-					<p>Redirecting to <a href="${videoUrl}">${videoTitle}</a></p>
+					<p>Redirecting to <a href={videoUrl}>{videoTitle}</a></p>
 				</body>
 			</html>
 		);

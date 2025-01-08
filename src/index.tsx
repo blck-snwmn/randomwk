@@ -67,9 +67,8 @@ app.get("/new", async (c) => {
 		);
 
 		return c.html(<OgPage />);
-	} else {
-		return c.redirect(videoUrl);
 	}
+	return c.redirect(videoUrl);
 });
 
 export default app;

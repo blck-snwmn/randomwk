@@ -5,7 +5,7 @@ const app = new Hono<{ Bindings: Env }>();
 
 app.get("/", (c) => {
 	const Top: FC = () => (
-		<html>
+		<html lang="ja">
 			<body>
 				<div>
 					<a href="/new">NEW</a>
@@ -45,7 +45,7 @@ app.get("/new", async (c) => {
 		const videoThumbnail = randomVideo.snippet.thumbnails.high.url;
 
 		const OgPage = () => (
-			<html lang="en">
+			<html lang="ja">
 				<head>
 					<meta charset="UTF-8" />
 					<meta

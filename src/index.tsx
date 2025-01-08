@@ -17,12 +17,12 @@ app.get("/", (c) => {
 });
 
 app.get("/new", async (c) => {
-	const keys = (await c.env.random.list()).keys;
+	const keys = (await c.env.random.list({ prefix: "channel#" })).keys;
 	console.info("keys", keys);
 
 	let videos: YoutubeVideo[] = [];
 	for (const { name: channelId } of keys) {
-		const channelVideos = await fetchYoutubeVideos(channelId, c.env);
+		const channelVideos = await fetchYoutubeVideos(channelId.replace("channel#", ""), c.env);
 		videos = videos.concat(channelVideos);
 	}
 

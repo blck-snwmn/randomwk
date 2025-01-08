@@ -12,10 +12,9 @@ app.get("/", (c) => {
 				</div>
 			</body>
 		</html>
-	)
+	);
 	return c.html(<Top />);
 });
-
 
 app.get("/new", async (c) => {
 	const CACHE_DURATION = 24 * 3600 * 1000; // 1日
@@ -26,7 +25,7 @@ app.get("/new", async (c) => {
 
 	let videos: YoutubeVideo[] = [];
 	for (const { name: channelId } of keys) {
-		const channelVideos = await fetchYoutubeVideos(channelId, c.env)
+		const channelVideos = await fetchYoutubeVideos(channelId, c.env);
 		videos = videos.concat(channelVideos);
 	}
 
@@ -37,7 +36,6 @@ app.get("/new", async (c) => {
 	const randomVideo = videos[Math.floor(Math.random() * videos.length)];
 	const videoUrl = `https://www.youtube.com/watch?v=${randomVideo.id.videoId}`;
 
-
 	const userAgent = c.req.header("User-Agent") || "";
 	const isBot = /bot|crawl|spider|slurp|facebookexternalhit/i.test(userAgent);
 
@@ -46,12 +44,14 @@ app.get("/new", async (c) => {
 		const videoDescription = randomVideo.snippet.description;
 		const videoThumbnail = randomVideo.snippet.thumbnails.high.url;
 
-
 		const OgPage = () => (
 			<html lang="en">
 				<head>
 					<meta charset="UTF-8" />
-					<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+					<meta
+						name="viewport"
+						content="width=device-width, initial-scale=1.0"
+					/>
 					<meta property="og:title" content="${videoTitle}" />
 					<meta property="og:description" content={videoDescription} />
 					<meta property="og:image" content={videoThumbnail} />
@@ -59,7 +59,9 @@ app.get("/new", async (c) => {
 					<title>{videoTitle}</title>
 				</head>
 				<body>
-					<p>Redirecting to <a href={videoUrl}>{videoTitle}</a></p>
+					<p>
+						Redirecting to <a href={videoUrl}>{videoTitle}</a>
+					</p>
 				</body>
 			</html>
 		);
@@ -72,11 +74,15 @@ app.get("/new", async (c) => {
 
 export default app;
 
-export const fetchYoutubeVideos = async (channelId: string, env: Env): Promise<YoutubeVideo[]> => {
+export const fetchYoutubeVideos = async (
+	channelId: string,
+	env: Env,
+): Promise<YoutubeVideo[]> => {
 	const API_KEY = env.API_KEY;
 	const CACHE_DURATION = 24 * 3600 * 1000; // 1日
 
-	const { value, metadata } = await env.random.getWithMetadata<Metadata>(channelId);
+	const { value, metadata } =
+		await env.random.getWithMetadata<Metadata>(channelId);
 
 	console.info("metadata", metadata);
 

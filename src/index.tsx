@@ -115,27 +115,33 @@ const getYoutubeVideo = async (
 	console.info("keys", keys);
 
 	let videos: YoutubeVideo[] = [];
-	for (const { name: channelId } of keys) {
-		const channelVideos = await fetchYoutubeVideos(
-			channelId.replace("channel#", ""),
-			env,
-		);
+	const expiredChannels: string[] = [];
+	const fetchPromises = keys.map(async ({ name: channelId }) => {
+		const channelVideos = await fetchYoutubeVideosFromCache(channelId.replace("channel#", ""), env);
+		if (channelVideos.length === 0) {
+			expiredChannels.push(channelId.replace("channel#", ""));
+		} else {
+			videos = videos.concat(channelVideos);
+		}
+	});
+	await Promise.all(fetchPromises);
+
+	for (const channelId of expiredChannels) {
+		const channelVideos = await fetchYoutubeVideos(channelId, env);
 		videos = videos.concat(channelVideos);
 	}
 
 	if (videos.length === 0) {
-		return null;
+		return null
 	}
+
 	return videos[Math.floor(Math.random() * videos.length)];
 };
 
-const fetchYoutubeVideos = async (
+const fetchYoutubeVideosFromCache = async (
 	channelId: string,
 	env: Env,
 ): Promise<YoutubeVideo[]> => {
-	const API_KEY = env.API_KEY;
-	const CACHE_DURATION = 24 * 3600 * 1000; // 1日
-
 	const { value, metadata } =
 		await env.random.getWithMetadata<Metadata>(channelId);
 
@@ -148,6 +154,23 @@ const fetchYoutubeVideos = async (
 		const data: YoutubeApiResponse = JSON.parse(value);
 		return data.items;
 	}
+
+	return [];
+};
+
+const fetchYoutubeVideos = async (
+	channelId: string,
+	env: Env,
+): Promise<YoutubeVideo[]> => {
+	const API_KEY = env.API_KEY;
+	const CACHE_DURATION = 24 * 3600 * 1000; // 1日
+
+	const { metadata } =
+		await env.random.getWithMetadata<Metadata>(channelId);
+
+	console.info("metadata", metadata);
+
+	const now = Date.now();
 
 	console.info(`kv miss or cache expired: ${channelId}`);
 	const url = `https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${channelId}&part=snippet,id&order=date&maxResults=20`;

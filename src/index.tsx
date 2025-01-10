@@ -20,7 +20,7 @@ app.get("/new", async (c) => {
 	const ud = crypto.randomUUID();
 	await c.env.random.put(`uuid#${ud}`, "");
 	return c.redirect(`/page/${ud}`);
-})
+});
 
 app.get("/page/:uuid", async (c) => {
 	const ud = c.req.param("uuid");
@@ -45,8 +45,15 @@ app.get("/page/:uuid", async (c) => {
 				<title>Share this video</title>
 			</head>
 			<body>
-				<p>Share this link: <a href={shareUrl}>{shareUrl}</a></p>
-				<button type="button" onclick={`navigator.clipboard.writeText('${shareUrl}')`}>Copy Link</button>
+				<p>
+					Share this link: <a href={shareUrl}>{shareUrl}</a>
+				</p>
+				<button
+					type="button"
+					onclick={`navigator.clipboard.writeText('${shareUrl}')`}
+				>
+					Copy Link
+				</button>
 			</body>
 		</html>
 	);
@@ -73,7 +80,10 @@ app.get("/share/:uuid", async (c) => {
 	return c.redirect(videoUrl);
 });
 
-const OgPage: FC<{ snippet: YoutubeVideoSnippet, url: string }> = ({ snippet, url }) => (
+const OgPage: FC<{ snippet: YoutubeVideoSnippet; url: string }> = ({
+	snippet,
+	url,
+}) => (
 	<html lang="ja">
 		<head>
 			<meta charset="UTF-8" />
@@ -85,14 +95,19 @@ const OgPage: FC<{ snippet: YoutubeVideoSnippet, url: string }> = ({ snippet, ur
 			<title>{snippet.title}</title>
 		</head>
 		<body>
-			<p>Redirecting to <a href={url}>{snippet.title}</a></p>
+			<p>
+				Redirecting to <a href={url}>{snippet.title}</a>
+			</p>
 		</body>
 	</html>
 );
 
 export default app;
 
-const getYoutubeVideo = async (value: string, env: Env): Promise<YoutubeVideo | null> => {
+const getYoutubeVideo = async (
+	value: string,
+	env: Env,
+): Promise<YoutubeVideo | null> => {
 	if (value) {
 		return JSON.parse(value);
 	}
@@ -112,7 +127,7 @@ const getYoutubeVideo = async (value: string, env: Env): Promise<YoutubeVideo | 
 		return null;
 	}
 	return videos[Math.floor(Math.random() * videos.length)];
-}
+};
 
 const fetchYoutubeVideos = async (
 	channelId: string,

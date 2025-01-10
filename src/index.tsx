@@ -35,6 +35,33 @@ app.get("/page/:uuid", async (c) => {
 	}
 	await c.env.random.put(`uuid#${ud}`, JSON.stringify(video));
 
+	const url = new URL(c.req.url);
+	const shareUrl = `${url.origin}/share/${ud}`;
+	const Page: FC<{ shareUrl: string }> = ({ shareUrl }) => (
+		<html lang="ja">
+			<head>
+				<meta charset="UTF-8" />
+				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+				<title>Share this video</title>
+			</head>
+			<body>
+				<p>Share this link: <a href={shareUrl}>{shareUrl}</a></p>
+				<button type="button" onclick={`navigator.clipboard.writeText('${shareUrl}')`}>Copy Link</button>
+			</body>
+		</html>
+	);
+
+	return c.html(<Page shareUrl={shareUrl} />);
+});
+
+app.get("/share/:uuid", async (c) => {
+	const ud = c.req.param("uuid");
+	const value = await c.env.random.get(`uuid#${ud}`);
+	if (value === null) {
+		return c.text("Not found", 404);
+	}
+
+	const video = JSON.parse(value);
 	const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
 	const userAgent = c.req.header("User-Agent") || "";
 	const isBot = /bot|crawl|spider|slurp|facebookexternalhit/i.test(userAgent);

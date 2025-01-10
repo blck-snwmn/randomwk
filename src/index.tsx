@@ -70,7 +70,7 @@ app.get("/new", async (c) => {
 
 export default app;
 
-export const fetchYoutubeVideos = async (
+const fetchYoutubeVideos = async (
 	channelId: string,
 	env: Env,
 ): Promise<YoutubeVideo[]> => {

@@ -17,58 +17,75 @@ app.get("/", (c) => {
 });
 
 app.get("/new", async (c) => {
-	const keys = (await c.env.random.list({ prefix: "channel#" })).keys;
-	console.info("keys", keys);
+	const ud = crypto.randomUUID();
+	await c.env.random.put(`uuid#${ud}`, "");
+	return c.redirect(`/page/${ud}`);
+})
 
-	let videos: YoutubeVideo[] = [];
-	for (const { name: channelId } of keys) {
-		const channelVideos = await fetchYoutubeVideos(channelId.replace("channel#", ""), c.env);
-		videos = videos.concat(channelVideos);
+app.get("/page/:uuid", async (c) => {
+	const ud = c.req.param("uuid");
+	const value = await c.env.random.get(`uuid#${ud}`);
+	if (value === null) {
+		return c.text("Not found", 404);
 	}
 
-	if (videos.length === 0) {
+	const video = await getYoutubeVideo(value, c.env);
+	if (video === null) {
 		return c.text("No videos found", 404);
 	}
+	await c.env.random.put(`uuid#${ud}`, JSON.stringify(video));
 
-	const randomVideo = videos[Math.floor(Math.random() * videos.length)];
-	const videoUrl = `https://www.youtube.com/watch?v=${randomVideo.id.videoId}`;
-
+	const videoUrl = `https://www.youtube.com/watch?v=${video.id.videoId}`;
 	const userAgent = c.req.header("User-Agent") || "";
 	const isBot = /bot|crawl|spider|slurp|facebookexternalhit/i.test(userAgent);
 
 	if (isBot) {
-		const videoTitle = randomVideo.snippet.title;
-		const videoDescription = randomVideo.snippet.description;
-		const videoThumbnail = randomVideo.snippet.thumbnails.high.url;
-
-		const OgPage = () => (
-			<html lang="ja">
-				<head>
-					<meta charset="UTF-8" />
-					<meta
-						name="viewport"
-						content="width=device-width, initial-scale=1.0"
-					/>
-					<meta property="og:title" content={videoTitle} />
-					<meta property="og:description" content={videoDescription} />
-					<meta property="og:image" content={videoThumbnail} />
-					<meta property="og:url" content={videoUrl} />
-					<title>{videoTitle}</title>
-				</head>
-				<body>
-					<p>
-						Redirecting to <a href={videoUrl}>{videoTitle}</a>
-					</p>
-				</body>
-			</html>
-		);
-
-		return c.html(<OgPage />);
+		// if the request is from a bot, return the ogp page
+		return c.html(<OgPage snippet={video.snippet} url={videoUrl} />);
 	}
 	return c.redirect(videoUrl);
 });
 
+const OgPage: FC<{ snippet: YoutubeVideoSnippet, url: string }> = ({ snippet, url }) => (
+	<html lang="ja">
+		<head>
+			<meta charset="UTF-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+			<meta property="og:title" content={snippet.title} />
+			<meta property="og:description" content={snippet.description} />
+			<meta property="og:image" content={snippet.thumbnails.high.url} />
+			<meta property="og:url" content={url} />
+			<title>{snippet.title}</title>
+		</head>
+		<body>
+			<p>Redirecting to <a href={url}>{snippet.title}</a></p>
+		</body>
+	</html>
+);
+
 export default app;
+
+const getYoutubeVideo = async (value: string, env: Env): Promise<YoutubeVideo | null> => {
+	if (value) {
+		return JSON.parse(value);
+	}
+	const keys = (await env.random.list({ prefix: "channel#" })).keys;
+	console.info("keys", keys);
+
+	let videos: YoutubeVideo[] = [];
+	for (const { name: channelId } of keys) {
+		const channelVideos = await fetchYoutubeVideos(
+			channelId.replace("channel#", ""),
+			env,
+		);
+		videos = videos.concat(channelVideos);
+	}
+
+	if (videos.length === 0) {
+		return null;
+	}
+	return videos[Math.floor(Math.random() * videos.length)];
+}
 
 const fetchYoutubeVideos = async (
 	channelId: string,

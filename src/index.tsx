@@ -175,7 +175,7 @@ const fetchYoutubeVideos = async (
 	const data: YoutubeApiResponse = await response.json();
 
 	const expiresAt = now + CACHE_DURATION;
-	await env.random.put(channelId, JSON.stringify(data), {
+	await env.random.put(`channel#${channelId}`, JSON.stringify(data), {
 		metadata: { channelId, expiresAt },
 	});
 

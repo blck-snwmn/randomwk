@@ -24,7 +24,7 @@ app.get("/new", async (c) => {
 
 app.get("/page/:uuid", async (c) => {
 	const ud = c.req.param("uuid");
-	const value = await c.env.random.get(`uuid#${ud}`);
+	const value = await c.env.random.get(keyOfUuid(ud));
 	if (value === null) {
 		return c.text("Not found", 404);
 	}
@@ -63,7 +63,7 @@ app.get("/page/:uuid", async (c) => {
 
 app.get("/share/:uuid", async (c) => {
 	const ud = c.req.param("uuid");
-	const value = await c.env.random.get(`uuid#${ud}`);
+	const value = await c.env.random.get(keyOfUuid(ud));
 	if (value === null) {
 		return c.text("Not found", 404);
 	}
@@ -111,17 +111,21 @@ const getYoutubeVideo = async (
 	if (value) {
 		return JSON.parse(value);
 	}
-	const keys = (await env.random.list({ prefix: "channel#" })).keys;
+	const keys = (await env.random.list({ prefix: prefixOfChannel })).keys;
 	console.info("keys", keys);
 
-	const results = await Promise.all(keys.map(async ({ name: prefixedChannelID }) => {
-		const channelID = prefixedChannelID.replace("channel#", "");
-		const channelVideos = await fetchYoutubeVideosFromCache(channelID, env);
-		return { channelId: channelID, channelVideos };
-	}));
+	const results = await Promise.all(
+		keys.map(async ({ name: prefixedChannelID }) => {
+			const channelID = prefixedChannelID.replace(prefixOfChannel, "");
+			const channelVideos = await fetchYoutubeVideosFromCache(channelID, env);
+			return { channelId: channelID, channelVideos };
+		}),
+	);
 
-	const videos = results.flatMap(result => result.channelVideos);
-	const expiredChannels = results.filter(result => result.channelVideos.length === 0).map(result => result.channelId);
+	const videos = results.flatMap((result) => result.channelVideos);
+	const expiredChannels = results
+		.filter((result) => result.channelVideos.length === 0)
+		.map((result) => result.channelId);
 
 	for (const channelId of expiredChannels) {
 		const channelVideos = await fetchYoutubeVideos(channelId, env);
@@ -129,7 +133,7 @@ const getYoutubeVideo = async (
 	}
 
 	if (videos.length === 0) {
-		return null
+		return null;
 	}
 
 	return videos[Math.floor(Math.random() * videos.length)];
@@ -162,8 +166,7 @@ const fetchYoutubeVideos = async (
 	const API_KEY = env.API_KEY;
 	const CACHE_DURATION = 24 * 3600 * 1000; // 1日
 
-	const { metadata } =
-		await env.random.getWithMetadata<Metadata>(channelId);
+	const { metadata } = await env.random.getWithMetadata<Metadata>(channelId);
 
 	console.info("metadata", metadata);
 
@@ -175,12 +178,22 @@ const fetchYoutubeVideos = async (
 	const data: YoutubeApiResponse = await response.json();
 
 	const expiresAt = now + CACHE_DURATION;
-	await env.random.put(`channel#${channelId}`, JSON.stringify(data), {
+	await env.random.put(keyOfChannel(channelId), JSON.stringify(data), {
 		metadata: { channelId, expiresAt },
 	});
 
 	return data.items;
 };
+
+function keyOfUuid(uuid: string) {
+	return `uuid#${uuid}`;
+}
+
+const prefixOfChannel = "channel#";
+
+function keyOfChannel(channelId: string) {
+	return `${prefixOfChannel}${channelId}`;
+}
 
 interface YoutubeVideo {
 	id: {

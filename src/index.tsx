@@ -114,21 +114,18 @@ const getYoutubeVideo = async (
 	const keys = (await env.random.list({ prefix: "channel#" })).keys;
 	console.info("keys", keys);
 
-	let videos: YoutubeVideo[] = [];
-	const expiredChannels: string[] = [];
-	const fetchPromises = keys.map(async ({ name: channelId }) => {
-		const channelVideos = await fetchYoutubeVideosFromCache(channelId.replace("channel#", ""), env);
-		if (channelVideos.length === 0) {
-			expiredChannels.push(channelId.replace("channel#", ""));
-		} else {
-			videos = videos.concat(channelVideos);
-		}
-	});
-	await Promise.all(fetchPromises);
+	const results = await Promise.all(keys.map(async ({ name: prefixedChannelID }) => {
+		const channelID = prefixedChannelID.replace("channel#", "");
+		const channelVideos = await fetchYoutubeVideosFromCache(channelID, env);
+		return { channelId: channelID, channelVideos };
+	}));
+
+	const videos = results.flatMap(result => result.channelVideos);
+	const expiredChannels = results.filter(result => result.channelVideos.length === 0).map(result => result.channelId);
 
 	for (const channelId of expiredChannels) {
 		const channelVideos = await fetchYoutubeVideos(channelId, env);
-		videos = videos.concat(channelVideos);
+		videos.push(...channelVideos);
 	}
 
 	if (videos.length === 0) {

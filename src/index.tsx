@@ -14,9 +14,9 @@ app.get("/", (c) => {
 				<title>Random YouTube Videos</title>
 			</head>
 			<body>
-				<div>
-					<a href="/new">NEW</a>
-				</div>
+				<h1>Welcome to Random YouTube Videos</h1>
+				<p>Click the button below to generate a new UUID and watch a random video from our registered YouTube channels!</p>
+				<a href="/new">NEW</a>
 			</body>
 		</html>
 	);

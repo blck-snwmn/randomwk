@@ -9,7 +9,10 @@ const HomePage: FC = () => (
 			<meta charset="UTF-8" />
 			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 			<meta property="og:title" content="Random YouTube Videos" />
-			<meta property="og:description" content="Watch and share random YouTube videos!" />
+			<meta
+				property="og:description"
+				content="Watch and share random YouTube videos!"
+			/>
 			<title>Random YouTube Videos</title>
 			<style>
 				{`
@@ -31,15 +34,13 @@ const HomePage: FC = () => (
 		</head>
 		<body>
 			<h1>Welcome to Random YouTube Videos</h1>
-			<p>
-				Click the button below to watch a random YouTube video!
-			</p>
-			<a href="/new" className="btn">Generate Random Video</a>
+			<p>Click the button below to watch a random YouTube video!</p>
+			<a href="/new" className="btn">
+				Generate Random Video
+			</a>
 		</body>
 	</html>
 );
-
-
 
 app.get("/", (c) => {
 	return c.html(<HomePage />);
@@ -96,9 +97,12 @@ app.get("/page/:uuid", async (c) => {
 					Share this link: <a href={shareUrl}>{shareUrl}</a>
 				</p>
 				<p>
-					Click the button below to copy the link and share it with your friends!
+					Click the button below to copy the link and share it with your
+					friends!
 				</p>
-				<button id="copy-button" className="btn" type="button">Copy Link</button>
+				<button id="copy-button" className="btn" type="button">
+					Copy Link
+				</button>
 			</body>
 		</html>
 	);

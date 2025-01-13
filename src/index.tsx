@@ -100,7 +100,11 @@ app.get("/page/:uuid", async (c) => {
 					Click the button below to copy the link and share it with your
 					friends!
 				</p>
-				<button id="copy-button" className="btn" type="button">
+				<button
+					type="button"
+					className="btn"
+					onclick={`navigator.clipboard.writeText('${shareUrl}')`}
+				>
 					Copy Link
 				</button>
 			</body>

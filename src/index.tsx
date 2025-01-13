@@ -10,12 +10,18 @@ app.get("/", (c) => {
 				<meta charset="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 				<meta property="og:title" content="Random YouTube Videos" />
-				<meta property="og:description" content="Click NEW to watch a random video!" />
+				<meta
+					property="og:description"
+					content="Click NEW to watch a random video!"
+				/>
 				<title>Random YouTube Videos</title>
 			</head>
 			<body>
 				<h1>Welcome to Random YouTube Videos</h1>
-				<p>Click the button below to generate a new UUID and watch a random video from our registered YouTube channels!</p>
+				<p>
+					Click the button below to generate a new UUID and watch a random video
+					from our registered YouTube channels!
+				</p>
 				<a href="/new">NEW</a>
 			</body>
 		</html>
@@ -52,9 +58,19 @@ app.get("/page/:uuid", async (c) => {
 				<title>Share this video</title>
 			</head>
 			<body>
-				<p>Share this link: <a href={shareUrl}>{shareUrl}</a></p>
-				<p>Click the button below to copy the link and share it with your friends!</p>
-				<button type="button" onclick={`navigator.clipboard.writeText('${shareUrl}')`}>Copy Link</button>
+				<p>
+					Share this link: <a href={shareUrl}>{shareUrl}</a>
+				</p>
+				<p>
+					Click the button below to copy the link and share it with your
+					friends!
+				</p>
+				<button
+					type="button"
+					onclick={`navigator.clipboard.writeText('${shareUrl}')`}
+				>
+					Copy Link
+				</button>
 			</body>
 		</html>
 	);

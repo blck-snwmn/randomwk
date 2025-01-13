@@ -12,7 +12,7 @@ app.get("/", (c) => {
 				<meta property="og:title" content="Random YouTube Videos" />
 				<meta
 					property="og:description"
-					content="Click NEW to watch a random video!"
+					content="Watch and share random YouTube videos!"
 				/>
 				<title>Random YouTube Videos</title>
 			</head>

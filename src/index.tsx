@@ -31,7 +31,7 @@ app.get("/new", async (c) => {
 
 app.get("/page/:uuid", async (c) => {
 	const ud = c.req.param("uuid");
-	const value = await c.env.random.get(keyOfUuid(ud));
+	const value = await c.env.random.get(keyOfPage(ud));
 	if (value === null) {
 		return c.text("Not found", 404);
 	}
@@ -70,7 +70,7 @@ app.get("/page/:uuid", async (c) => {
 
 app.get("/share/:uuid", async (c) => {
 	const ud = c.req.param("uuid");
-	const value = await c.env.random.get(keyOfUuid(ud));
+	const value = await c.env.random.get(keyOfPage(ud));
 	if (value === null) {
 		return c.text("Not found", 404);
 	}
@@ -192,7 +192,7 @@ const fetchYoutubeVideos = async (
 	return data.items;
 };
 
-function keyOfUuid(uuid: string) {
+function keyOfPage(uuid: string) {
 	return `uuid#${uuid}`;
 }
 

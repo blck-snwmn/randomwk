@@ -3,30 +3,46 @@ import type { FC } from "hono/jsx";
 
 const app = new Hono<{ Bindings: Env }>();
 
+const HomePage: FC = () => (
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+			<meta property="og:title" content="Random YouTube Videos" />
+			<meta property="og:description" content="Watch and share random YouTube videos!" />
+			<title>Random YouTube Videos</title>
+			<style>
+				{`
+                    .btn {
+                        display: inline-block;
+                        padding: 10px 20px;
+                        font-size: 16px;
+                        color: #fff;
+                        background-color: #007BFF;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        transition: background-color 0.3s;
+                    }
+                    .btn:hover {
+                        background-color: #0056b3;
+                    }
+                `}
+			</style>
+		</head>
+		<body>
+			<h1>Welcome to Random YouTube Videos</h1>
+			<p>
+				Click the button below to watch a random YouTube video!
+			</p>
+			<a href="/new" className="btn">Generate Random Video</a>
+		</body>
+	</html>
+);
+
+
+
 app.get("/", (c) => {
-	const Top: FC = () => (
-		<html lang="ja">
-			<head>
-				<meta charset="UTF-8" />
-				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-				<meta property="og:title" content="Random YouTube Videos" />
-				<meta
-					property="og:description"
-					content="Watch and share random YouTube videos!"
-				/>
-				<title>Random YouTube Videos</title>
-			</head>
-			<body>
-				<h1>Welcome to Random YouTube Videos</h1>
-				<p>
-					Click the button below to generate a new UUID and watch a random video
-					from our registered YouTube channels!
-				</p>
-				<a href="/new">NEW</a>
-			</body>
-		</html>
-	);
-	return c.html(<Top />);
+	return c.html(<HomePage />);
 });
 
 app.get("/new", async (c) => {

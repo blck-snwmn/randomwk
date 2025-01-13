@@ -67,26 +67,38 @@ app.get("/page/:uuid", async (c) => {
 	const url = new URL(c.req.url);
 	const shareUrl = `${url.origin}/share/${ud}`;
 	const Page: FC<{ shareUrl: string }> = ({ shareUrl }) => (
-		<html lang="ja">
+		<html lang="en">
 			<head>
 				<meta charset="UTF-8" />
 				<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-				<title>Share this video</title>
+				<title>Share This Video</title>
+				<style>
+					{`
+                        .btn {
+                            display: inline-block;
+                            padding: 10px 20px;
+                            font-size: 16px;
+                            color: #fff;
+                            background-color: #28a745;
+                            border: none;
+                            border-radius: 5px;
+                            cursor: pointer;
+                            transition: background-color 0.3s;
+                        }
+                        .btn:hover {
+                            background-color: #218838;
+                        }
+                    `}
+				</style>
 			</head>
 			<body>
 				<p>
 					Share this link: <a href={shareUrl}>{shareUrl}</a>
 				</p>
 				<p>
-					Click the button below to copy the link and share it with your
-					friends!
+					Click the button below to copy the link and share it with your friends!
 				</p>
-				<button
-					type="button"
-					onclick={`navigator.clipboard.writeText('${shareUrl}')`}
-				>
-					Copy Link
-				</button>
+				<button id="copy-button" className="btn" type="button">Copy Link</button>
 			</body>
 		</html>
 	);
